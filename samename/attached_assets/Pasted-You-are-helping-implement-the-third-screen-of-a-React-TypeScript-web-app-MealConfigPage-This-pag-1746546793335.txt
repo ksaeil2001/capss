@@ -1,0 +1,73 @@
+You are helping implement the third screen of a React + TypeScript web app: MealConfigPage. This page allows users to edit and assemble their daily meal plan using the recommended foods from the previous screen. The UI is vertically divided into three main functional zones:
+
+1. Meal Slot Board (Drag & Drop)
+On the left side of the screen, three vertical sections are shown for breakfast, lunch, and dinner in order. Each section can hold multiple FoodCard components (same as used in Page2), showing the thumbnail, tags, score, and a detail button.
+
+User interactions supported:
+
+Add Food: Click empty slot or “+” button to send a partial fetch request like GET /recommend?slot=breakfast.
+
+Replace/Remove: Drag and drop food cards to swap, or click "X" to remove.
+
+Edit Detail: Click detail button to open a modal showing ingredients, allergy labels, and alternative food suggestions.
+
+Each change immediately updates Zustand's mealPlanStore, which holds:
+
+{
+  meals: {
+    breakfast: Food[],
+    lunch: Food[],
+    dinner: Food[]
+  }
+}
+2. Right Summary Panel (Live Budget & Nutrition Tracker)
+
+Shows remaining budget (₩) at the top.
+
+Displays nutrient progress bars for Carbs / Protein / Fat / Sugar.
+
+Values are calculated in real-time:
+summary.target - mealPlan.totals
+
+When any nutrient exceeds the target, the bar turns red to warn the user.
+
+These values are derived using memoized selectors for performance efficiency (no Recoil used).
+
+3. Bottom Navigation Bar (Workflow Controller)
+
+Displays a 4-step progress indicator: Input → Recommend → Configure → Summary, with current step ("Configure") highlighted.
+
+A large “View Results” button is placed at the right end.
+
+Button behavior:
+
+If validation passes, navigate to /summary using navigate('/summary').
+
+If validation fails (e.g., budget exceeded, unbalanced macros), show toast warning and block transition.
+
+4. Data & Event Flow Summary
+
+[User interaction: add/remove/move FoodCard]
+      ↓
+[mealPlanStore updates meals.breakfast/lunch/dinner]
+      ↓
+[calcTotals() selector updates nutritional totals]
+      ↓
+[RightInfoBox re-renders + validation triggers on "View Results"]
+All state changes occur in a single HTML document — no page reloads or route changes.
+
+On refresh, state is restored from localStorage. Browser back/forward is supported using retained global state.
+
+Please help build this page by providing:
+
+Component architecture and prop/state structure
+
+Zustand store setup for mealPlan
+
+Drag-and-drop handling logic for meal slots
+
+Real-time progress bar update method
+
+Validation and navigation flow using navigate()
+
+Take a deep breath and let’s work this out step by step to be sure we have the right answer.
