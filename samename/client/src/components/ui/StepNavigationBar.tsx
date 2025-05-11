@@ -9,7 +9,11 @@ interface StepNavigationBarProps {
     nextButtonText?: string;
 }
 
-const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNext, nextButtonText = '다음' }) => {
+const StepNavigationBar: React.FC<StepNavigationBarProps> = ({
+    currentStep,
+    onNext,
+    nextButtonText = '다음',
+}) => {
     const [, navigate] = useLocation();
     const { toast } = useToast();
     const { userInfo, isFormValid } = useUserInfoStore();
@@ -29,9 +33,10 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNe
     };
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 z-10">
+        <div className="fixed bottom-0 left-0 right-0 bg-background shadow-lg border-t border-border p-4 z-10">
             <div className="container mx-auto max-w-7xl px-4 flex justify-between items-center">
                 <div className="flex items-center space-x-6">
+                    {/* Step 1 */}
                     <button
                         onClick={() => handleNavigate('/')}
                         className="flex items-center transition-colors hover:text-primary focus:outline-none group"
@@ -40,16 +45,23 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNe
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                                 currentStep === 1
                                     ? 'bg-primary text-white'
-                                    : 'bg-gray-200 text-gray-500 group-hover:bg-primary/20'
+                                    : 'bg-muted text-muted-foreground group-hover:bg-primary/20'
                             }`}
                         >
                             1
                         </div>
-                        <div className={`ml-2 text-sm ${currentStep === 1 ? 'font-medium' : 'text-gray-500'}`}>
+                        <div
+                            className={`ml-2 text-sm ${
+                                currentStep === 1
+                                    ? 'font-medium'
+                                    : 'text-muted-foreground'
+                            }`}
+                        >
                             입력
                         </div>
                     </button>
 
+                    {/* Step 2 */}
                     <button
                         onClick={() => handleNavigate('/recommendations')}
                         className="flex items-center transition-colors hover:text-primary focus:outline-none group"
@@ -58,16 +70,23 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNe
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                                 currentStep === 2
                                     ? 'bg-primary text-white'
-                                    : 'bg-gray-200 text-gray-500 group-hover:bg-primary/20'
+                                    : 'bg-muted text-muted-foreground group-hover:bg-primary/20'
                             }`}
                         >
                             2
                         </div>
-                        <div className={`ml-2 text-sm ${currentStep === 2 ? 'font-medium' : 'text-gray-500'}`}>
+                        <div
+                            className={`ml-2 text-sm ${
+                                currentStep === 2
+                                    ? 'font-medium'
+                                    : 'text-muted-foreground'
+                            }`}
+                        >
                             추천
                         </div>
                     </button>
 
+                    {/* Step 3 */}
                     <button
                         onClick={() => handleNavigate('/configure')}
                         className="flex items-center transition-colors hover:text-primary focus:outline-none group"
@@ -76,21 +95,29 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNe
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                                 currentStep === 3
                                     ? 'bg-primary text-white'
-                                    : 'bg-gray-200 text-gray-500 group-hover:bg-primary/20'
+                                    : 'bg-muted text-muted-foreground group-hover:bg-primary/20'
                             }`}
                         >
                             3
                         </div>
-                        <div className={`ml-2 text-sm ${currentStep === 3 ? 'font-medium' : 'text-gray-500'}`}>
+                        <div
+                            className={`ml-2 text-sm ${
+                                currentStep === 3
+                                    ? 'font-medium'
+                                    : 'text-muted-foreground'
+                            }`}
+                        >
                             구성
                         </div>
                     </button>
 
+                    {/* Step 4 */}
                     <button
                         onClick={() => {
                             toast({
                                 title: '결과 확인 버튼을 눌러 요약 페이지로 이동할 수 있어요.',
-                                description: "하단의 '결과 확인' 버튼을 사용하세요.",
+                                description:
+                                    "하단의 '결과 확인' 버튼을 사용하세요.",
                                 variant: 'default',
                             });
                         }}
@@ -98,12 +125,20 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({ currentStep, onNe
                     >
                         <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                                currentStep === 4 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'
+                                currentStep === 4
+                                    ? 'bg-primary text-white'
+                                    : 'bg-muted text-muted-foreground'
                             }`}
                         >
                             4
                         </div>
-                        <div className={`ml-2 text-sm ${currentStep === 4 ? 'font-medium' : 'text-gray-500'}`}>
+                        <div
+                            className={`ml-2 text-sm ${
+                                currentStep === 4
+                                    ? 'font-medium'
+                                    : 'text-muted-foreground'
+                            }`}
+                        >
                             요약
                         </div>
                     </button>

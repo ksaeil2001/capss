@@ -62,9 +62,6 @@ const DietResult: React.FC = () => {
           <Header>
             <StyledTitle>오늘의 식단 결과</StyledTitle>
           </Header>
-          <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-            <strong>사용자 정보:</strong> {userInfo?.age ?? '-'}세 / {userInfo?.gender ?? '-'} / {userInfo?.goal ?? '-'}
-          </div>
           <ContentWrapper>
             <ChartSection>
               <h2>목표 대비 영양소 섭취 현황</h2>

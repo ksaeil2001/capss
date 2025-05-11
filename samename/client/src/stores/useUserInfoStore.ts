@@ -29,20 +29,12 @@ type UserInfoStore = {
 };
 
 const useUserInfoStore = create<UserInfoStore>((set, get) => ({
-  userInfo: {
-    age: 30,
-    gender: "male",
-    height: 173,
-    weight: 73,
-    bodyFat: 20,
-    goal: "lose",
-    activityLevel: "light",
-    mealsPerDay: 3,  // ✅ 추가
-    budget: 15000,   // ✅ 추가
-    termsAgreed: false,
-    allergies: [],
-  },
-  isFormValid: false,
+    userInfo: {
+        bodyFat: 20,
+        allergies: [],
+        termsAgreed: false,
+    },
+    isFormValid: false,
 
   setGender: (gender) => {
     set((state) => {
