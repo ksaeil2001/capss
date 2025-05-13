@@ -2,33 +2,17 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ResponsivePie } from "@nivo/pie";
-
-// 추가 차트 파일
-import {
-  // PieChart,
-  // Pie,
-  // Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-} from "recharts";
+import { ResponsiveBar } from "@nivo/bar";
 
 // stores 폴더 파일에서 데이터 가져오기
 import useRecommendStore from "../stores/useRecommendStore";
 import useSelectedMealsStore from "../stores/useSelectedMealsStore";
 
-// 상태값은 컴포넌트 함수 안에서 가져와야 하는 리엑트 규칙이 있어서 DietResult 함수 안에 넣음
 const DietResult = () => {
   const { recommendation } = useRecommendStore();
   const { selectedMeals } = useSelectedMealsStore();
 
   // 선댁한 식단 영양소 합산하기
-
   const nutrition = {
     calories: 0,
     protein: 0,
@@ -70,43 +54,29 @@ const DietResult = () => {
     },
   ];
 
-  // 2. 목표 대비 차트용(BarChart)
+  // 2. 목표 대비 차트용(BarChart) → Nivo용 데이터로 가공
   const nutritionComparisonData = [
     {
       name: "칼로리",
-      current: nutrition.calories,
-      target: recommendation?.summary?.totalCalories ?? 0,
-      unit: "kcal",
+      섭취량: nutrition.calories,
+      권장량: recommendation?.summary?.totalCalories ?? 0,
     },
     {
       name: "단백질",
-      current: nutrition.protein,
-      target: recommendation?.summary?.totalProtein ?? 0,
-      unit: "g",
+      섭취량: nutrition.protein,
+      권장량: recommendation?.summary?.totalProtein ?? 0,
     },
     {
       name: "탄수화물",
-      current: nutrition.carbs,
-      target: recommendation?.summary?.totalCarbs ?? 0,
-      unit: "g",
+      섭취량: nutrition.carbs,
+      권장량: recommendation?.summary?.totalCarbs ?? 0,
     },
     {
       name: "지방",
-      current: nutrition.fat,
-      target: recommendation?.summary?.totalFat ?? 0,
-      unit: "g",
+      섭취량: nutrition.fat,
+      권장량: recommendation?.summary?.totalFat ?? 0,
     },
   ];
-
-  console.log("pieData", pieData);
-  console.log("nutritionComparisonData", nutritionComparisonData);
-
-  // <차트 자리에 임시로 표시해줄 컴포넌트 PlaceholderChart를 정의>
-  // const PlaceholderChart = ({ label }: { label: string }) => (
-  //   <div className="h-48 bg-gray-100 flex items-center justify-center rounded-md">
-  //     <span className="text-gray-500">{label} 차트</span>
-  //   </div>
-  // );
 
   return (
     <div className="p-6 space-y-6">
@@ -114,62 +84,130 @@ const DietResult = () => {
       <h1 className="text-3xl font-bold text-center">오늘의 식단 결과</h1>
 
       {/* 카드 영역 */}
-      <div
-        className="grid gap-6 justify-center"
-        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))" }}
-      >
-        {/* 카드 1 */}
-        <Card className="w-full max-w-[600px] lg:h-[500px] xl:transform xl:translate-x-[300px] xl:translate-y-[20px]">
+      <div className="flex justify-center">
+        <Card className="w-full max-w-[1200px] lg:h-auto">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold">목표 대비 영양소 섭취 현황</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              이 영양소의 일일 권장량 대비 섭취 비율을 보여줍니다.
-            </p>
-            <Separator className="my-4" />
-            {/* <PlaceholderChart label="영양소 비율" /> */}
-            <div className="h-[200px]">
-              <div style={{ height: 400 }}>
-                <ResponsivePie
-                  data={pieData}
-                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-                  innerRadius={0.6}
-                  padAngle={1.5}
-                  cornerRadius={4}
-                  activeOuterRadiusOffset={8}
-                  colors={{ scheme: "set2" }}
-                  borderWidth={1}
-                  borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
-                  arcLinkLabelsSkipAngle={10}
-                  arcLinkLabelsTextColor="#333333"
-                  arcLinkLabelsThickness={2}
-                  arcLinkLabelsColor={{ from: "color" }}
-                  arcLabelsSkipAngle={10}
-                  arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 목표 대비 영양소 섭취 비율 */}
+              <div className="md:border-r md:border-gray-200 md:pr-4">
+                <h2 className="text-xl font-semibold">목표 대비 영양소 섭취 비율</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  이 영양소의 일일 권장량 대비 섭취 비율(%)을 보여줍니다.
+                </p>
+                <Separator className="my-4" />
 
-        {/* 카드 2 */}
-        <Card className="w-full max-w-[600px] lg:h-[500px] xl:transform xl:translate-y-[20px]">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold">영양소 상세 정보</h2>
-            <Separator className="my-4" />
-            {/* <PlaceholderChart label="상세 정보" /> */}
-            <div className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={nutritionComparisonData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="current" fill="#82ca9d" name="현재 섭취량" />
-                  <Bar dataKey="target" fill="#8884d8" name="목표 섭취량" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+                <div className="w-full h-[350px] overflow-hidden">
+                  <ResponsivePie
+                    data={pieData}
+                    margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                    innerRadius={0.6}
+                    padAngle={1.5}
+                    cornerRadius={4}
+                    activeOuterRadiusOffset={8}
+                    colors={{ scheme: "set2" }}
+                    borderWidth={1}
+                    borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
+                    arcLinkLabelsSkipAngle={10}
+                    arcLinkLabelsTextColor="#333333"
+                    arcLinkLabelsThickness={2}
+                    arcLinkLabelsColor={{ from: "color" }}
+                    arcLabelsSkipAngle={10}
+                    arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    legends={[
+                      {
+                        anchor: "bottom",
+                        direction: "row",
+                        justify: false,
+                        translateX: 0,
+                        translateY: 56,
+                        itemsSpacing: 10,
+                        itemWidth: 80,
+                        itemHeight: 18,
+                        itemDirection: "left-to-right",
+                        symbolSize: 12,
+                        symbolShape: "circle",
+                        itemTextColor: "#555",
+                        effects: [
+                          {
+                            on: "hover",
+                            style: {
+                              itemTextColor: "#000",
+                            },
+                          },
+                        ],
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* 영양소 섭취량 비교 */}
+              <div className="md:pl-4">
+                <h2 className="text-xl font-semibold">영양소 섭취량 비교</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  각 영양소의 실제 섭취량과 권장량을 나란히 비교해보세요.
+                </p>
+                <Separator className="my-4" />
+
+                <div className="w-full h-[350px] overflow-hidden">
+                  <ResponsiveBar
+                    data={nutritionComparisonData}
+                    keys={["섭취량", "권장량"]}
+                    indexBy="name"
+                    margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
+                    padding={0.4}
+                    colors={({ id }) => (id === "섭취량" ? "#FFC107" : "#03A9F4")}
+                    valueScale={{ type: "linear" }}
+                    indexScale={{ type: "band", round: true }}
+                    axisLeft={{
+                      tickSize: 5,
+                      tickPadding: 5,
+                      legend: "섭취량 / 권장량",
+                      legendPosition: "middle",
+                      legendOffset: -55,
+                    }}
+                    enableLabel={true}
+                    labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    labelSkipWidth={16}
+                    labelSkipHeight={16}
+                    legends={[
+                      {
+                        dataFrom: "keys",
+                        anchor: "bottom",
+                        direction: "row",
+                        justify: false,
+                        translateX: 0,
+                        translateY: 56,
+                        itemsSpacing: 10,
+                        itemWidth: 80,
+                        itemHeight: 18,
+                        itemDirection: "left-to-right",
+                        symbolSize: 12,
+                        symbolShape: "circle",
+                        itemTextColor: "#555",
+                        effects: [
+                          {
+                            on: "hover",
+                            style: {
+                              itemTextColor: "#000",
+                            },
+                          },
+                        ],
+                      },
+                    ]}
+                    tooltip={({ id, value, indexValue }: { id: string; value: number; indexValue: string }) => (
+                      <div className="p-2 text-sm bg-white border rounded shadow">
+                        <strong>{indexValue}</strong> <br />
+                        {id}: {value.toLocaleString()}
+                      </div>
+                    )}
+                    role="application"
+                    ariaLabel="영양소 섭취량 비교 바 차트"
+                    barAriaLabel={e => `${e.id}: ${e.formattedValue} (${e.indexValue})`}
+                  />
+                </div>
+              </div>
+            </div> {/* /grid grid-cols-2 */}
           </CardContent>
         </Card>
       </div>
