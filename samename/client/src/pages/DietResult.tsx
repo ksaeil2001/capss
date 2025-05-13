@@ -195,7 +195,15 @@ const DietResult = () => {
                         ],
                       },
                     ]}
-                    tooltip={({ id, value, indexValue }: { id: string; value: number; indexValue: string }) => (
+                    tooltip={({
+                      id,
+                      value,
+                      indexValue,
+                    }: {
+                      id: string;
+                      value: number;
+                      indexValue: string;
+                    }) => (
                       <div className="p-2 text-sm bg-white border rounded shadow">
                         <strong>{indexValue}</strong> <br />
                         {id}: {value.toLocaleString()}
@@ -207,7 +215,7 @@ const DietResult = () => {
                   />
                 </div>
               </div>
-            </div> {/* /grid grid-cols-2 */}
+            </div>
           </CardContent>
         </Card>
       </div>
