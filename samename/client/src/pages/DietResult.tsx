@@ -1,5 +1,4 @@
 // samename/client/src/pages/DietResult.tsx
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -79,7 +78,7 @@ const DietResult: React.FC = () => {
     },
   ];
 
-  // 4) 첫 번째 끼니 선택 이유·장점
+  // 4. 카드 및 차트
   const firstMeal = selectedMeals[0];
   const { reason, benefit } = getMealInfo(firstMeal?.name || "");
 
