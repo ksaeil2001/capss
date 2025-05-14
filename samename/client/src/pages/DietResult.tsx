@@ -159,9 +159,7 @@ const DietResult: React.FC = () => {
                     indexBy="name"
                     margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
                     padding={0.4}
-                    colors={({ id }: { id: string }) =>
-                      id === "섭취량" ? "#FFC107" : "#03A9F4"
-                    }
+                    colors={({ id }: { id: string }) => (id === "섭취량" ? "#FFC107" : "#03A9F4")}
                     valueScale={{ type: "linear" }}
                     indexScale={{ type: "band", round: true }}
                     axisLeft={{
@@ -217,9 +215,9 @@ const DietResult: React.FC = () => {
                     )}
                     role="application"
                     ariaLabel="영양소 섭취량 비교 바 차트"
-                    barAriaLabel={(
-                      e: { id: string; formattedValue: string; indexValue: string }
-                    ) => `${e.id}: ${e.formattedValue} (${e.indexValue})`}
+                    barAriaLabel={(e: { id: string; formattedValue: string; indexValue: string }) =>
+                      `${e.id}: ${e.formattedValue} (${e.indexValue})`
+                    }
                   />
                 </div>
               </div>
