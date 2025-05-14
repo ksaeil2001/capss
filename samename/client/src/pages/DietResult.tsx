@@ -13,14 +13,17 @@ const DietResult: React.FC = () => {
   const { recommendation } = useRecommendStore();
   const { selectedMeals } = useSelectedMealsStore();
 
-  // 1) 선택한 식단 영양소 합산하기
-  const nutrition = {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
+  // 0) 식사가 없을 경우 안내
+  if (!selectedMeals || selectedMeals.length === 0) {
+    return (
+      <div className="p-6">
+        <p className="text-center py-8 text-gray-500">먼저 식단 추천을 받아주세요.</p>
+      </div>
+    );
+  }
 
+  // 1) 선택한 식단 영양소 합산하기
+  const nutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
   selectedMeals.forEach(meal => {
     if (meal) {
       nutrition.calories += meal.calories || 0;
@@ -66,28 +69,28 @@ const DietResult: React.FC = () => {
       섭취량: nutrition.protein,
       권장량: recommendation?.summary?.totalProtein ?? 0,
     },
-    {
-      name: "탄수화물",
-      섭취량: nutrition.carbs,
-      권장량: recommendation?.summary?.totalCarbs ?? 0,
-    },
-    {
-      name: "지방",
-      섭취량: nutrition.fat,
-      권장량: recommendation?.summary?.totalFat ?? 0,
-    },
+    { name: "탄수화물", 섭취량: nutrition.carbs, 권장량: recommendation?.summary?.totalCarbs ?? 0 },
+    { name: "지방", 섭취량: nutrition.fat, 권장량: recommendation?.summary?.totalFat ?? 0 },
   ];
 
-  // 4. 카드 및 차트
-  const firstMeal = selectedMeals[0];
-  const { reason, benefit } = getMealInfo(firstMeal?.name || "");
+  // 식사 시간 레이블 준비 (아침, 점심, 저녁)
+  const baseLabels = ["아침", "점심", "저녁"];
+  const mealLabels = baseLabels.slice(0, selectedMeals.length);
+
+  // 동적 그리드 컬럼 클래스
+  const colsClass =
+    selectedMeals.length === 2
+      ? "sm:grid-cols-2"
+      : selectedMeals.length === 3
+        ? "sm:grid-cols-3"
+        : "sm:grid-cols-1";
 
   return (
     <div className="p-6 space-y-6">
       {/* 상단 제목 */}
       <h1 className="text-3xl font-bold text-center">오늘의 식단 결과</h1>
 
-      {/* 카드 영역 */}
+      {/* 차트 섹션 */}
       <div className="flex justify-center">
         <Card className="w-full max-w-[1200px] lg:h-auto">
           <CardContent className="p-6">
@@ -115,30 +118,19 @@ const DietResult: React.FC = () => {
                     arcLinkLabelsThickness={2}
                     arcLinkLabelsColor={{ from: "color" }}
                     arcLabelsSkipAngle={10}
-                    arcLabelsTextColor={{
-                      from: "color",
-                      modifiers: [["darker", 2]],
-                    }}
+                    arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
                     legends={[
                       {
                         anchor: "bottom",
                         direction: "row",
-                        justify: false,
-                        translateX: 0,
                         translateY: 56,
                         itemsSpacing: 10,
                         itemWidth: 80,
                         itemHeight: 18,
-                        itemDirection: "left-to-right",
                         symbolSize: 12,
                         symbolShape: "circle",
                         itemTextColor: "#555",
-                        effects: [
-                          {
-                            on: "hover",
-                            style: { itemTextColor: "#000" },
-                          },
-                        ],
+                        effects: [{ on: "hover", style: { itemTextColor: "#000" } }],
                       },
                     ]}
                   />
@@ -160,11 +152,7 @@ const DietResult: React.FC = () => {
                     margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
                     padding={0.4}
                     colors={({ id }: { id: string }) => (id === "섭취량" ? "#FFC107" : "#03A9F4")}
-                    valueScale={{ type: "linear" }}
-                    indexScale={{ type: "band", round: true }}
                     axisLeft={{
-                      tickSize: 5,
-                      tickPadding: 5,
                       legend: "섭취량 / 권장량",
                       legendPosition: "middle",
                       legendOffset: -55,
@@ -172,30 +160,20 @@ const DietResult: React.FC = () => {
                     enableLabel
                     labelSkipWidth={16}
                     labelSkipHeight={16}
-                    labelTextColor={{
-                      from: "color",
-                      modifiers: [["darker", 2]],
-                    }}
+                    labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
                     legends={[
                       {
                         dataFrom: "keys",
                         anchor: "bottom",
                         direction: "row",
-                        translateX: 0,
                         translateY: 56,
                         itemsSpacing: 10,
                         itemWidth: 80,
                         itemHeight: 18,
-                        itemDirection: "left-to-right",
                         symbolSize: 12,
                         symbolShape: "circle",
                         itemTextColor: "#555",
-                        effects: [
-                          {
-                            on: "hover",
-                            style: { itemTextColor: "#000" },
-                          },
-                        ],
+                        effects: [{ on: "hover", style: { itemTextColor: "#000" } }],
                       },
                     ]}
                     tooltip={({
@@ -213,37 +191,39 @@ const DietResult: React.FC = () => {
                         {id}: {value.toLocaleString()}
                       </div>
                     )}
-                    role="application"
-                    ariaLabel="영양소 섭취량 비교 바 차트"
-                    barAriaLabel={(e: { id: string; formattedValue: string; indexValue: string }) =>
-                      `${e.id}: ${e.formattedValue} (${e.indexValue})`
-                    }
                   />
                 </div>
               </div>
             </div>
 
-            {/* 첫 번째 끼니 선택 이유 & 장점 */}
-            {firstMeal && (
-              <section className="mt-8">
-                <h2 className="text-xl font-semibold mb-2">첫 번째 끼니: {firstMeal.name}</h2>
-                <div className="flex items-start gap-4">
-                  <img
-                    src={firstMeal.imageUrl}
-                    alt={firstMeal.name}
-                    className="w-24 h-24 rounded-lg object-cover"
-                  />
-                  <div>
-                    <p className="mb-1">
-                      <strong>선택 이유:</strong> {reason}
-                    </p>
-                    <p>
-                      <strong>장점:</strong> {benefit}
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
+            {/* 식사별 선택 이유 & 장점 */}
+            <section className={`mt-8 grid grid-cols-1 ${colsClass} gap-6`}>
+              {selectedMeals.map((meal, idx) => {
+                if (!meal) return null;
+                const { reason, benefit } = getMealInfo(meal.name);
+                const label = mealLabels[idx] || `식사 ${idx + 1}`;
+                return (
+                  <Card key={idx} className="w-full">
+                    <CardContent className="p-4">
+                      <h2 className="text-lg font-semibold mb-2">
+                        {label}: {meal.name}
+                      </h2>
+                      <img
+                        src={meal.imageUrl}
+                        alt={meal.name}
+                        className="w-full h-40 object-cover rounded-lg mb-2"
+                      />
+                      <p className="mb-1">
+                        <strong>선택 이유:</strong> {reason}
+                      </p>
+                      <p>
+                        <strong>장점:</strong> {benefit}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </section>
           </CardContent>
         </Card>
       </div>
