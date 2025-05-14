@@ -1,18 +1,20 @@
+// samename/client/src/pages/DietResult.tsx
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ResponsivePie } from "@nivo/pie";
 import { ResponsiveBar } from "@nivo/bar";
 
-// stores 폴더 파일에서 데이터 가져오기
 import useRecommendStore from "../stores/useRecommendStore";
 import useSelectedMealsStore from "../stores/useSelectedMealsStore";
+import { getMealInfo } from "@/utils/mealInfo";
 
-const DietResult = () => {
+const DietResult: React.FC = () => {
   const { recommendation } = useRecommendStore();
   const { selectedMeals } = useSelectedMealsStore();
 
-  // 선댁한 식단 영양소 합산하기
+  // 1) 선택한 식단 영양소 합산하기
   const nutrition = {
     calories: 0,
     protein: 0,
@@ -29,8 +31,7 @@ const DietResult = () => {
     }
   });
 
-  // 차트용 데이터 가공하기
-  // 1. 퍼센트 차트용 (PieChart)
+  // 2) PieChart용 퍼센트 데이터
   const pieData = [
     {
       id: "칼로리",
@@ -54,7 +55,7 @@ const DietResult = () => {
     },
   ];
 
-  // 2. 목표 대비 차트용(BarChart) → Nivo용 데이터로 가공
+  // 3) BarChart용 비교 데이터
   const nutritionComparisonData = [
     {
       name: "칼로리",
@@ -78,6 +79,10 @@ const DietResult = () => {
     },
   ];
 
+  // 4) 첫 번째 끼니 선택 이유·장점
+  const firstMeal = selectedMeals[0];
+  const { reason, benefit } = getMealInfo(firstMeal?.name || "");
+
   return (
     <div className="p-6 space-y-6">
       {/* 상단 제목 */}
@@ -88,14 +93,13 @@ const DietResult = () => {
         <Card className="w-full max-w-[1200px] lg:h-auto">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* 목표 대비 영양소 섭취 비율 */}
+              {/* 목표 대비 영양소 섭취 비율 (PieChart) */}
               <div className="md:border-r md:border-gray-200 md:pr-4">
                 <h2 className="text-xl font-semibold">목표 대비 영양소 섭취 비율</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  이 영양소의 일일 권장량 대비 섭취 비율(%)을 보여줍니다.
+                  일일 권장량 대비 섭취 비율(%)을 보여줍니다.
                 </p>
                 <Separator className="my-4" />
-
                 <div className="w-full h-[350px] overflow-hidden">
                   <ResponsivePie
                     data={pieData}
@@ -112,7 +116,10 @@ const DietResult = () => {
                     arcLinkLabelsThickness={2}
                     arcLinkLabelsColor={{ from: "color" }}
                     arcLabelsSkipAngle={10}
-                    arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    arcLabelsTextColor={{
+                      from: "color",
+                      modifiers: [["darker", 2]],
+                    }}
                     legends={[
                       {
                         anchor: "bottom",
@@ -130,9 +137,7 @@ const DietResult = () => {
                         effects: [
                           {
                             on: "hover",
-                            style: {
-                              itemTextColor: "#000",
-                            },
+                            style: { itemTextColor: "#000" },
                           },
                         ],
                       },
@@ -141,14 +146,13 @@ const DietResult = () => {
                 </div>
               </div>
 
-              {/* 영양소 섭취량 비교 */}
+              {/* 영양소 섭취량 비교 (BarChart) */}
               <div className="md:pl-4">
                 <h2 className="text-xl font-semibold">영양소 섭취량 비교</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  각 영양소의 실제 섭취량과 권장량을 나란히 비교해보세요.
+                  실제 섭취량과 권장량을 나란히 비교합니다.
                 </p>
                 <Separator className="my-4" />
-
                 <div className="w-full h-[350px] overflow-hidden">
                   <ResponsiveBar
                     data={nutritionComparisonData}
@@ -166,16 +170,18 @@ const DietResult = () => {
                       legendPosition: "middle",
                       legendOffset: -55,
                     }}
-                    enableLabel={true}
-                    labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    enableLabel
                     labelSkipWidth={16}
                     labelSkipHeight={16}
+                    labelTextColor={{
+                      from: "color",
+                      modifiers: [["darker", 2]],
+                    }}
                     legends={[
                       {
                         dataFrom: "keys",
                         anchor: "bottom",
                         direction: "row",
-                        justify: false,
                         translateX: 0,
                         translateY: 56,
                         itemsSpacing: 10,
@@ -188,9 +194,7 @@ const DietResult = () => {
                         effects: [
                           {
                             on: "hover",
-                            style: {
-                              itemTextColor: "#000",
-                            },
+                            style: { itemTextColor: "#000" },
                           },
                         ],
                       },
@@ -205,7 +209,8 @@ const DietResult = () => {
                       indexValue: string;
                     }) => (
                       <div className="p-2 text-sm bg-white border rounded shadow">
-                        <strong>{indexValue}</strong> <br />
+                        <strong>{indexValue}</strong>
+                        <br />
                         {id}: {value.toLocaleString()}
                       </div>
                     )}
@@ -216,6 +221,28 @@ const DietResult = () => {
                 </div>
               </div>
             </div>
+
+            {/* 첫 번째 끼니 선택 이유 & 장점 */}
+            {firstMeal && (
+              <section className="mt-8">
+                <h2 className="text-xl font-semibold mb-2">첫 번째 끼니: {firstMeal.name}</h2>
+                <div className="flex items-start gap-4">
+                  <img
+                    src={firstMeal.imageUrl}
+                    alt={firstMeal.name}
+                    className="w-24 h-24 rounded-lg object-cover"
+                  />
+                  <div>
+                    <p className="mb-1">
+                      <strong>선택 이유:</strong> {reason}
+                    </p>
+                    <p>
+                      <strong>장점:</strong> {benefit}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
           </CardContent>
         </Card>
       </div>
