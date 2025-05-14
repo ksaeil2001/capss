@@ -13,6 +13,9 @@ const DietResult: React.FC = () => {
   const { recommendation } = useRecommendStore();
   const { selectedMeals } = useSelectedMealsStore();
 
+  // 실제 선택된 식사만 필터링
+  const meals = selectedMeals.filter(meal => !!meal);
+
   // 0) 식사가 없을 경우 안내
   if (!selectedMeals || selectedMeals.length === 0) {
     return (
@@ -24,7 +27,7 @@ const DietResult: React.FC = () => {
 
   // 1) 선택한 식단 영양소 합산하기
   const nutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-  selectedMeals.forEach(meal => {
+  meals.forEach(meal => {
     if (meal) {
       nutrition.calories += meal.calories || 0;
       nutrition.protein += meal.protein || 0;
@@ -75,13 +78,13 @@ const DietResult: React.FC = () => {
 
   // 식사 시간 레이블 준비 (아침, 점심, 저녁)
   const baseLabels = ["아침", "점심", "저녁"];
-  const mealLabels = baseLabels.slice(0, selectedMeals.length);
+  const mealLabels = baseLabels.slice(0, meals.length);
 
   // 동적 그리드 컬럼 클래스
   const colsClass =
-    selectedMeals.length === 2
+    meals.length === 2
       ? "sm:grid-cols-2"
-      : selectedMeals.length === 3
+      : meals.length === 3
         ? "sm:grid-cols-3"
         : "sm:grid-cols-1";
 
@@ -198,7 +201,7 @@ const DietResult: React.FC = () => {
 
             {/* 식사별 선택 이유 & 장점 */}
             <section className={`mt-8 grid grid-cols-1 ${colsClass} gap-6`}>
-              {selectedMeals.map((meal, idx) => {
+              {meals.map((meal, idx) => {
                 if (!meal) return null;
                 const { reason, benefit } = getMealInfo(meal.name);
                 const label = mealLabels[idx] || `식사 ${idx + 1}`;
