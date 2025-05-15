@@ -1,7 +1,44 @@
-import { pgTable, text, serial, integer, boolean, json, real, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, real, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+export const allergyList = [
+  "계란",
+  "우유",
+  "메밀",
+  "땅콩",
+  "대두",
+  "밀",
+  "고등어",
+  "게",
+  "새우",
+  "돼지고기",
+  "복숭아",
+  "토마토",
+  "아황산류",
+  "호두",
+  "닭고기",
+  "쇠고기",
+  "오징어",
+  "조개류",
+  "잣",
+  "오렌지",
+  "잉어",
+  "참깨",
+  "고추",
+  "아몬드",
+  "캐슈넛",
+  "브라질너트",
+  "피스타치오",
+  "마카다미아",
+  "생선",
+  "갑각류",
+  "견과류",
+  "기타",
+] as const;
+
+export type AllergyType = (typeof allergyList)[number];
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -21,7 +58,7 @@ export const userProfiles = pgTable("user_profiles", {
   goal: text("goal").notNull(),
   activityLevel: text("activity_level").notNull(),
   mealsPerDay: integer("meals_per_day").notNull(),
-  allergies: text("allergies"),
+  allergies: jsonb("allergies").$type<string[]>(),
   budget: integer("budget").notNull(),
   createdAt: text("created_at")
     .notNull()
@@ -93,7 +130,7 @@ export const userInfoSchema = z.object({
   goal: z.enum(["lose", "maintain", "gain", "muscle"]),
   activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very_active"]),
   mealsPerDay: z.number().min(2).max(3),
-  allergies: z.array(z.string()).default([]),
+  allergies: z.array(z.enum(allergyList)).optional(),
   budget: z.number().min(5000).max(100000),
   termsAgreed: z.boolean().refine(val => val === true, {
     message: "이용약관에 동의해야 합니다.",
