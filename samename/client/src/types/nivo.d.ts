@@ -1,6 +1,21 @@
-declare module '@nivo/pie' {
-  // 간단히 any로 export 처리
-  const Pie: any;
+// client/src/types/nivo.d.ts
+
+declare module "@nivo/pie" {
+  import { FC } from "react";
+
+  type NivoPieProps = Record<string, unknown>;
+
+  export const ResponsivePie: FC<NivoPieProps>;
+  const Pie: FC<NivoPieProps>;
   export default Pie;
-  export * from 'recharts'; // 필요에 따라 수정
+}
+
+declare module "@nivo/bar" {
+  import { FC } from "react";
+
+  type NivoBarProps = Record<string, unknown>;
+
+  export const ResponsiveBar: FC<NivoBarProps>;
+  const Bar: FC<NivoBarProps>;
+  export default Bar;
 }

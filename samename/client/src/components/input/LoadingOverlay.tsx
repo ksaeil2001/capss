@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface LoadingOverlayProps {
   isVisible: boolean;
@@ -11,11 +11,11 @@ interface LoadingOverlayProps {
  */
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   isVisible,
-  message = 'AI 식단을 계산 중입니다...',
-  submessage = '맞춤형 식단을 생성하는 데 약 10초가 소요됩니다.',
+  message = "AI 식단을 계산 중입니다...",
+  submessage = "맞춤형 식단을 생성하는 데 약 10초가 소요됩니다.",
 }) => {
   if (!isVisible) return null;
-  
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center max-w-sm">

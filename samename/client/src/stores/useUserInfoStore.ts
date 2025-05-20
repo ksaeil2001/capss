@@ -1,17 +1,17 @@
-import { create } from 'zustand';
-import { type UserInfo } from '@shared/schema';
+import { create } from "zustand";
+import { type UserInfo } from "@shared/schema";
 
 type UserInfoStore = {
   userInfo: Partial<UserInfo>;
   isFormValid: boolean;
 
   // Setters for each field
-  setGender: (gender: UserInfo['gender']) => void;
+  setGender: (gender: UserInfo["gender"]) => void;
   setHeight: (height: number | undefined) => void;
   setWeight: (weight: number | undefined) => void;
   setBodyFat: (bodyFat: number) => void;
-  setGoal: (goal: UserInfo['goal']) => void;
-  setActivityLevel: (activityLevel: UserInfo['activityLevel']) => void;
+  setGoal: (goal: UserInfo["goal"]) => void;
+  setActivityLevel: (activityLevel: UserInfo["activityLevel"]) => void;
   setMealsPerDay: (mealsPerDay: number) => void;
   setAllergies: (allergies: string[]) => void;
   setBudget: (budget: number | undefined) => void;
@@ -29,85 +29,85 @@ type UserInfoStore = {
 };
 
 const useUserInfoStore = create<UserInfoStore>((set, get) => ({
-    userInfo: {
-        bodyFat: 20,
-        allergies: [],
-        termsAgreed: false,
-    },
-    isFormValid: false,
+  userInfo: {
+    bodyFat: 20,
+    allergies: [],
+    termsAgreed: false,
+  },
+  isFormValid: false,
 
-  setGender: (gender) => {
-    set((state) => {
+  setGender: gender => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, gender } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setHeight: (height) => {
-    set((state) => {
+  setHeight: height => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, height } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setWeight: (weight) => {
-    set((state) => {
+  setWeight: weight => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, weight } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setBodyFat: (bodyFat) => {
-    set((state) => {
+  setBodyFat: bodyFat => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, bodyFat } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setGoal: (goal) => {
-    set((state) => {
+  setGoal: goal => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, goal } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setActivityLevel: (activityLevel) => {
-    set((state) => {
+  setActivityLevel: activityLevel => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, activityLevel } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setMealsPerDay: (mealsPerDay) => {
-    set((state) => {
+  setMealsPerDay: mealsPerDay => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, mealsPerDay } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setAllergies: (allergies) => {
-    set((state) => {
+  setAllergies: allergies => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, allergies } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setBudget: (budget) => {
-    set((state) => {
+  setBudget: budget => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, budget } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setTermsAgreed: (termsAgreed) => {
-    set((state) => {
+  setTermsAgreed: termsAgreed => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, termsAgreed } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setAge: (age) => {
-    set((state) => {
+  setAge: age => {
+    set(state => {
       const newState = {
         userInfo: { ...state.userInfo, age },
       };
@@ -118,22 +118,22 @@ const useUserInfoStore = create<UserInfoStore>((set, get) => ({
     });
   },
 
-  setNeckCircumference: (value) => {
-    set((state) => {
+  setNeckCircumference: value => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, neckCircumference: value } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setWaistCircumference: (value) => {
-    set((state) => {
+  setWaistCircumference: value => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, waistCircumference: value } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
   },
 
-  setHipCircumference: (value) => {
-    set((state) => {
+  setHipCircumference: value => {
+    set(state => {
       const newState = { userInfo: { ...state.userInfo, hipCircumference: value } };
       return { ...newState, isFormValid: validateUserInfo(newState.userInfo) };
     });
@@ -163,13 +163,29 @@ const useUserInfoStore = create<UserInfoStore>((set, get) => ({
 
 function validateUserInfo(userInfo: Partial<UserInfo>): boolean {
   const {
-    gender, height, weight, bodyFat, goal,
-    activityLevel, mealsPerDay, budget, termsAgreed, age // ✅ 추가
+    gender,
+    height,
+    weight,
+    bodyFat,
+    goal,
+    activityLevel,
+    mealsPerDay,
+    budget,
+    termsAgreed,
+    age, // ✅ 추가
   } = userInfo;
 
   if (
-    !gender || !height || !weight || bodyFat === undefined || !goal ||
-    !activityLevel || !mealsPerDay || !budget || !termsAgreed || age === undefined // ✅ 추가
+    !gender ||
+    !height ||
+    !weight ||
+    bodyFat === undefined ||
+    !goal ||
+    !activityLevel ||
+    !mealsPerDay ||
+    !budget ||
+    !termsAgreed ||
+    age === undefined // ✅ 추가
   ) {
     return false;
   }

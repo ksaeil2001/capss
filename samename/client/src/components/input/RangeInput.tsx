@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface RangeInputProps {
   id: string;
@@ -25,7 +25,7 @@ const RangeInput: React.FC<RangeInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
   };
-  
+
   return (
     <div className="flex flex-col">
       <label htmlFor={id} className="main-input__label flex justify-between">

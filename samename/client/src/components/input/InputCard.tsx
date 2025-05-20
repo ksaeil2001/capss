@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface InputCardProps {
   children: React.ReactNode;
@@ -8,12 +8,8 @@ interface InputCardProps {
 /**
  * Card container for form input elements
  */
-const InputCard: React.FC<InputCardProps> = ({ children, className = '' }) => {
-  return (
-    <div className={`main-input__card ${className}`}>
-      {children}
-    </div>
-  );
+const InputCard: React.FC<InputCardProps> = ({ children, className = "" }) => {
+  return <div className={`main-input__card ${className}`}>{children}</div>;
 };
 
 export default InputCard;

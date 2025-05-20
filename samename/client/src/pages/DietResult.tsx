@@ -1,200 +1,245 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
-import RadialProgressChart from '@/components/4pagecomponents/RadialProgressChart';
-import PieRatioChart from '@/components/4pagecomponents/PieRatioChart';
-import NutrientGaugeChart from '@/components/4pagecomponents/NutrientGaugeChart';
-import NutrientRatioProgressBar from '@/components/4pagecomponents/NutrientRatioProgressBar';
-import MealStackedBarChart from '@/components/4pagecomponents/MealStackedBarChart';
-import {
-  AppBackground, MainCard, Title, WarningContainer,
-  CenteredButtonWrapper, MainButton, AnalysisSection,
-  NutrientLabel, NutrientValue
-} from '../styles/common';
-import { nutrientNames } from '@/constants/nutrients';
-import { getNutrientColor } from '@/utils/dietUtils';
-import useUserInfoStore from '@/stores/useUserInfoStore';
-import { useMealPlanStore } from '@/stores/useMealPlanStore';
+// samename/client/src/pages/DietResult.tsx
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ResponsivePie } from "@nivo/pie";
+import { ResponsiveBar } from "@nivo/bar";
+
+import useRecommendStore from "../stores/useRecommendStore";
+import useSelectedMealsStore from "../stores/useSelectedMealsStore";
+import { getMealInfo } from "@/utils/mealInfo";
 
 const DietResult: React.FC = () => {
-  const { userInfo } = useUserInfoStore();
-  const { meals, totals } = useMealPlanStore();
+  const { recommendation } = useRecommendStore();
+  const { selectedMeals } = useSelectedMealsStore();
 
-  const summary = {
-    calories: { current: totals.calories, target: 2000, unit: 'kcal' },
-    protein: { current: totals.protein, target: 100, unit: 'g' },
-    fat: { current: totals.fat, target: 70, unit: 'g' },
-    carbs: { current: totals.carbs, target: 250, unit: 'g' },
-    budget: { current: totals.budget, target: 20000, unit: '원' }
-  };
+  // 실제 선택된 식사만 필터링
+  const meals = selectedMeals.filter(meal => !!meal);
 
-  const allergies: string[] = []; // 추후 알러지 연결 가능
+  // 0) 식사가 없을 경우 안내
+  if (!selectedMeals || selectedMeals.length === 0) {
+    return (
+      <div className="p-6">
+        <p className="text-center py-8 text-gray-500">먼저 식단 추천을 받아주세요.</p>
+      </div>
+    );
+  }
 
-  const handleSaveToTxt = () => {
-    const content = `식단 요약 리포트\n\n사용자 정보: ${userInfo?.age ?? '-'}세 ${userInfo?.gender ?? '-'} ${userInfo?.goal ?? '-'}\n\n날짜: ${new Date().toLocaleDateString()}\n\n칼로리: ${summary.calories.current}/${summary.calories.target} kcal\n단백질: ${summary.protein.current}/${summary.protein.target}g\n지방: ${summary.fat.current}/${summary.fat.target}g\n탄수화물: ${summary.carbs.current}/${summary.carbs.target}g\n예산: ${summary.budget.current}/${summary.budget.target}원\n\n알레르기 주의 항목: ${allergies.join(', ')}`;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = '식단_요약.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+  // 1) 선택한 식단 영양소 합산하기
+  const nutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  meals.forEach(meal => {
+    if (meal) {
+      nutrition.calories += meal.calories || 0;
+      nutrition.protein += meal.protein || 0;
+      nutrition.carbs += meal.carbs || 0;
+      nutrition.fat += meal.fat || 0;
+    }
+  });
 
-  // meals 데이터 변환 함수
-  const transformedMeals = Object.fromEntries(
-    Object.entries(meals).map(([slot, mealList]) => [
-      slot,
-      {
-        protein: mealList.reduce((sum, meal) => sum + meal.protein, 0),
-        fat: mealList.reduce((sum, meal) => sum + meal.fat, 0),
-        carbs: mealList.reduce((sum, meal) => sum + meal.carbs, 0),
-      }
-    ])
-  );
+  // 2) PieChart용 퍼센트 데이터(2자리수)
+  const pieData = [
+    {
+      id: "칼로리",
+      label: "칼로리",
+      value: parseFloat(
+        ((nutrition.calories / (recommendation?.summary?.totalCalories || 1)) * 100).toFixed(2)
+      ),
+    },
+    {
+      id: "단백질",
+      label: "단백질",
+      value: parseFloat(
+        ((nutrition.protein / (recommendation?.summary?.totalProtein || 1)) * 100).toFixed(2)
+      ),
+    },
+    {
+      id: "탄수화물",
+      label: "탄수화물",
+      value: parseFloat(
+        ((nutrition.carbs / (recommendation?.summary?.totalCarbs || 1)) * 100).toFixed(2)
+      ),
+    },
+    {
+      id: "지방",
+      label: "지방",
+      value: parseFloat(
+        ((nutrition.fat / (recommendation?.summary?.totalFat || 1)) * 100).toFixed(2)
+      ),
+    },
+  ];
+
+  // 3) BarChart용 비교 데이터
+  const nutritionComparisonData = [
+    {
+      name: "칼로리",
+      섭취량: nutrition.calories,
+      권장량: recommendation?.summary?.totalCalories ?? 0,
+    },
+    {
+      name: "단백질",
+      섭취량: nutrition.protein,
+      권장량: recommendation?.summary?.totalProtein ?? 0,
+    },
+    { name: "탄수화물", 섭취량: nutrition.carbs, 권장량: recommendation?.summary?.totalCarbs ?? 0 },
+    { name: "지방", 섭취량: nutrition.fat, 권장량: recommendation?.summary?.totalFat ?? 0 },
+  ];
+
+  // 식사 시간 레이블 준비 (아침, 점심, 저녁)
+  const baseLabels = ["아침", "점심", "저녁"];
+  const mealLabels = baseLabels.slice(0, meals.length);
+
+  // 동적 그리드 컬럼 클래스
+  const colsClass =
+    meals.length === 2
+      ? "sm:grid-cols-2"
+      : meals.length === 3
+        ? "sm:grid-cols-3"
+        : "sm:grid-cols-1";
 
   return (
-    <AppBackground>
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-        <MainCard>
-          <Header>
-            <StyledTitle>오늘의 식단 결과</StyledTitle>
-          </Header>
-          <ContentWrapper>
-            <ChartSection>
-              <h2>목표 대비 영양소 섭취 현황</h2>
-              <RadialProgressChart data={summary} />
-            </ChartSection>
-            <Divider />
-            <SummarySection>
-              <h2>영양소 상세 정보</h2>
-              {nutrientNames.map((n: any) => (
-                <SummaryItem key={n.key}>
-                  <NutrientLabel>{n.label}</NutrientLabel>
-                  <NutrientValue color={getNutrientColor(n.key)}>
-                    {summary[n.key as keyof typeof summary].current}/{summary[n.key as keyof typeof summary].target} {summary[n.key as keyof typeof summary].unit}
-                  </NutrientValue>
-                  <DetailProgressBar>
-                    <ProgressBarInner
-                      color={getNutrientColor(n.key)}
-                      percent={Math.round((summary[n.key as keyof typeof summary].current / summary[n.key as keyof typeof summary].target) * 100)}
-                    />
-                  </DetailProgressBar>
-                </SummaryItem>
-              ))}
-            </SummarySection>
-          </ContentWrapper>
-          <AnalysisSection>
-            <NutrientGaugeChart summary={summary} />
-            <NutrientRatioProgressBar summary={summary} />
-            <MealStackedBarChart meals={transformedMeals} />
-          </AnalysisSection>
-          {allergies.length > 0 && (
-            <WarningContainer>
-              <strong>알레르기 주의 항목:</strong> {allergies.join(', ')}
-            </WarningContainer>
-          )}
-          <CenteredButtonWrapper>
-            <MainButton onClick={handleSaveToTxt}>
-              식단 요약 저장하기 (.txt)
-            </MainButton>
-          </CenteredButtonWrapper>
-        </MainCard>
-      </motion.div>
-    </AppBackground>
+    <div className="p-6 space-y-6">
+      {/* 상단 제목 */}
+      <h1 className="text-3xl font-bold text-center">오늘의 식단 결과</h1>
+
+      {/* 차트 섹션 */}
+      <div className="flex justify-center">
+        <Card className="w-full max-w-[1200px] lg:h-auto">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 목표 대비 영양소 섭취 비율 (PieChart) */}
+              <div className="md:border-r md:border-gray-200 md:pr-4">
+                <h2 className="text-xl font-semibold">목표 대비 영양소 섭취 비율</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  일일 권장량 대비 섭취 비율(%)을 보여줍니다.
+                </p>
+                <Separator className="my-4" />
+                <div className="w-full h-[350px] overflow-hidden">
+                  <ResponsivePie
+                    data={pieData}
+                    margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                    innerRadius={0.6}
+                    padAngle={1.5}
+                    cornerRadius={4}
+                    activeOuterRadiusOffset={8}
+                    colors={{ scheme: "set2" }}
+                    borderWidth={1}
+                    borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
+                    arcLinkLabelsSkipAngle={10}
+                    arcLinkLabelsTextColor="#333333"
+                    arcLinkLabelsThickness={2}
+                    arcLinkLabelsColor={{ from: "color" }}
+                    arcLabelsSkipAngle={10}
+                    arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    legends={[
+                      {
+                        anchor: "bottom",
+                        direction: "row",
+                        translateY: 56,
+                        itemsSpacing: 10,
+                        itemWidth: 80,
+                        itemHeight: 18,
+                        symbolSize: 12,
+                        symbolShape: "circle",
+                        itemTextColor: "#555",
+                        effects: [{ on: "hover", style: { itemTextColor: "#000" } }],
+                      },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* 영양소 섭취량 비교 (BarChart) */}
+              <div className="md:pl-4">
+                <h2 className="text-xl font-semibold">영양소 섭취량 비교</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  실제 섭취량과 권장량을 나란히 비교합니다.
+                </p>
+                <Separator className="my-4" />
+                <div className="w-full h-[350px] overflow-hidden">
+                  <ResponsiveBar
+                    data={nutritionComparisonData}
+                    keys={["섭취량", "권장량"]}
+                    indexBy="name"
+                    margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
+                    padding={0.4}
+                    colors={({ id }: { id: string }) => (id === "섭취량" ? "#FFC107" : "#03A9F4")}
+                    axisLeft={{
+                      legend: "섭취량 / 권장량",
+                      legendPosition: "middle",
+                      legendOffset: -55,
+                    }}
+                    enableLabel
+                    labelSkipWidth={16}
+                    labelSkipHeight={16}
+                    labelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+                    legends={[
+                      {
+                        dataFrom: "keys",
+                        anchor: "bottom",
+                        direction: "row",
+                        translateY: 56,
+                        itemsSpacing: 10,
+                        itemWidth: 80,
+                        itemHeight: 18,
+                        symbolSize: 12,
+                        symbolShape: "circle",
+                        itemTextColor: "#555",
+                        effects: [{ on: "hover", style: { itemTextColor: "#000" } }],
+                      },
+                    ]}
+                    tooltip={({
+                      id,
+                      value,
+                      indexValue,
+                    }: {
+                      id: string;
+                      value: number;
+                      indexValue: string;
+                    }) => (
+                      <div className="p-2 text-sm bg-white border rounded shadow">
+                        <strong>{indexValue}</strong>
+                        <br />
+                        {id}: {value.toLocaleString()}
+                      </div>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 식사별 선택 이유 & 장점 */}
+            <section className={`mt-8 grid grid-cols-1 ${colsClass} gap-6`}>
+              {meals.map((meal, idx) => {
+                if (!meal) return null;
+                const { reason, benefit } = getMealInfo(meal.name);
+                const label = mealLabels[idx] || `식사 ${idx + 1}`;
+                return (
+                  <Card key={idx} className="w-full">
+                    <CardContent className="p-4">
+                      <h2 className="text-lg font-semibold mb-2">
+                        {label}: {meal.name}
+                      </h2>
+                      <img
+                        src={meal.imageUrl}
+                        alt={meal.name}
+                        className="w-full h-40 object-cover rounded-lg mb-2"
+                      />
+                      <p className="mb-1">
+                        <strong>선택 이유:</strong> {reason}
+                      </p>
+                      <p>
+                        <strong>장점:</strong> {benefit}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </section>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: 3.5rem;
-  margin: 3rem auto 0;
-  padding: 0 40px;
-  max-width: 1200px;
-  align-items: stretch;
-  @media (max-width: 900px) {
-    flex-direction: column;
-    gap: 2rem;
-    padding: 0 10px;
-  }
-`;
-
-const ChartSection = styled.div`
-  flex: 1.3;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  @media (max-width: 900px) {
-    flex: none;
-    width: 100%;
-    align-items: center;
-  }
-`;
-
-const SummarySection = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 600px;
-  @media (max-width: 900px) {
-    width: 100%;
-    max-width: 100%;
-  }
-`;
-
-const Divider = styled.div`
-  width: 2px;
-  min-height: 320px;
-  background: #e5e5e5;
-  margin: 0 48px;
-  border-radius: 2px;
-  @media (max-width: 900px) {
-    width: 100%;
-    height: 2px;
-    min-height: 0;
-    margin: 32px 0;
-  }
-`;
-
-const SummaryItem = styled.div`
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const DetailProgressBar = styled.div`
-  width: 100%;
-  max-width: 300px;
-  height: 16px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
-`;
-
-const ProgressBarInner = styled.div<{ percent: number; color: string }>`
-  width: ${({ percent }) => percent}%;
-  height: 100%;
-  background: ${({ color }) => color};
-  transition: width 0.3s ease;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 2rem;
-`;
-
-const StyledTitle = styled(Title)`
-  text-align: center;
-  margin: 0;
-`;
 
 export default DietResult;

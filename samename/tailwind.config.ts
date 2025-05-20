@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Pretendard', 'sans-serif'],
+        sans: ["Pretendard", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

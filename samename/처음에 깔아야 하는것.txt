@@ -1,0 +1,30 @@
+npx eslint --init
+(ESLint 설정 마법사 실행(프로젝트별 최초 1회만 수행))
+
+npm install
+(package.json, package-lock.json 기준으로 전체 의존성 다시 설치 : 의존성 충돌, 버전 에러, 새 패키지 설치 후 등)
+
+`````````````````````````````````````````````````````````````````````````````````````````````````````````
+npx tsc --init
+(tsconfig.json 생성 : 타입스크립트 프로젝트를 처음 시작할 때)
+
+-> 이 명령어는 tsconfig.json을 설치하기 위한 명령어지만 이미 만들어져있으므로 치면 바보라네 세일이가.
+
+여기부터는 필수가 아닙니다(위는 필수가)
+
+npx tsc --noEmit
+(타입 체크만 수행)
+npm audit fix --force
+(의존성 패키지의 보안 취약점 자동으로 고침)(force는 위험할 수 있으니 꼭 변경 로그 확인!)
+npx eslint client
+npx eslint server
+(각각의 폴더에서 코드 스타일 및 오류 점검)
+npx eslint client --fix
+npx eslint server --fix
+(가능한 lint 에러를 자동으로 코드 수정)
+npx prettier --write client/src/App.tsx
+(해당 파일을 Prettier 규칙에 따라 자동 정렬(저장) 만약 여부만 확인하고 싶다면 --check)
+npx prettier --write .
+(현재 디렉토리(및 모든 하위 폴더)의 모든 지원 파일을 Prettier 스타일로 자동 정렬)
+npx prettier --check .
+(포맷팅이 필요하면 “틀린 파일”만 출력(자동 고정 X, 체크만))

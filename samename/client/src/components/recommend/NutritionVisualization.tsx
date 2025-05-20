@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -15,26 +15,30 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  Radar
-} from 'recharts';
-import { DietRecommendation, Meal } from '@shared/schema';
+  Radar,
+} from "recharts";
+import { DietRecommendation, Meal } from "@shared/schema";
+import { Payload } from "recharts/types/component/DefaultTooltipContent";
 
 interface NutritionVisualizationProps {
-  summary: DietRecommendation['summary'];
+  summary: DietRecommendation["summary"];
   selectedMeals: (Meal | null)[];
 }
 
 // 칼로리 섭취량을 영양소별로 분석하는 컴포넌트
-const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({ summary, selectedMeals }) => {
+const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({
+  summary,
+  selectedMeals,
+}) => {
   // 선택된 식단들의 영양소 합계 계산
   const selectedMealsNutrition = {
     calories: 0,
     protein: 0,
     carbs: 0,
     fat: 0,
-    budget: 0
+    budget: 0,
   };
-  
+
   // 빈 값(null)이 아닌 선택된 식단들의 영양소만 합산
   selectedMeals.forEach(meal => {
     if (meal) {
@@ -45,83 +49,95 @@ const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({ summary
       selectedMealsNutrition.budget += meal.price || 0;
     }
   });
-  
+
   // 영양소 비율 계산 (PieChart용)
   const macroDistributionData = [
-    { name: '단백질', value: selectedMealsNutrition.protein * 4 }, // 단백질 1g = 4kcal
-    { name: '탄수화물', value: selectedMealsNutrition.carbs * 4 }, // 탄수화물 1g = 4kcal
-    { name: '지방', value: selectedMealsNutrition.fat * 9 }, // 지방 1g = 9kcal
+    { name: "단백질", value: selectedMealsNutrition.protein * 4 }, // 단백질 1g = 4kcal
+    { name: "탄수화물", value: selectedMealsNutrition.carbs * 4 }, // 탄수화물 1g = 4kcal
+    { name: "지방", value: selectedMealsNutrition.fat * 9 }, // 지방 1g = 9kcal
   ];
-  
-  // 총 칼로리에 대한 각 영양소의 비율 계산 
+
+  // 총 칼로리에 대한 각 영양소의 비율 계산
   const totalCalories = macroDistributionData.reduce((sum, item) => sum + item.value, 0);
   const macroPercentages = macroDistributionData.map(item => ({
     ...item,
-    percentage: totalCalories > 0 ? Math.round((item.value / totalCalories) * 100) : 0
+    percentage: totalCalories > 0 ? Math.round((item.value / totalCalories) * 100) : 0,
   }));
-  
+
   // 영양소 목표치 대비 현재 섭취량 비교 (BarChart용)
   const nutritionComparisonData = [
     {
-      name: '칼로리',
+      name: "칼로리",
       current: selectedMealsNutrition.calories,
       target: summary.totalCalories,
-      unit: 'kcal'
+      unit: "kcal",
     },
     {
-      name: '단백질',
+      name: "단백질",
       current: selectedMealsNutrition.protein,
       target: summary.totalProtein,
-      unit: 'g'
+      unit: "g",
     },
     {
-      name: '탄수화물',
+      name: "탄수화물",
       current: selectedMealsNutrition.carbs,
       target: summary.totalCarbs,
-      unit: 'g'
+      unit: "g",
     },
     {
-      name: '지방',
+      name: "지방",
       current: selectedMealsNutrition.fat,
       target: summary.totalFat,
-      unit: 'g'
-    }
+      unit: "g",
+    },
   ];
-  
+
   // 영양소 균형 점수 (RadarChart용)
   // 각 영양소의 목표 대비 현재 비율을 백분율로 계산(최대 120%까지 표시)
   const nutritionBalanceData = [
     {
-      subject: '칼로리',
-      value: Math.min(120, Math.round((selectedMealsNutrition.calories / summary.totalCalories) * 100) || 0),
-      fullMark: 100
+      subject: "칼로리",
+      value: Math.min(
+        120,
+        Math.round((selectedMealsNutrition.calories / summary.totalCalories) * 100) || 0
+      ),
+      fullMark: 100,
     },
     {
-      subject: '단백질',
-      value: Math.min(120, Math.round((selectedMealsNutrition.protein / summary.totalProtein) * 100) || 0),
-      fullMark: 100
+      subject: "단백질",
+      value: Math.min(
+        120,
+        Math.round((selectedMealsNutrition.protein / summary.totalProtein) * 100) || 0
+      ),
+      fullMark: 100,
     },
     {
-      subject: '탄수화물',
-      value: Math.min(120, Math.round((selectedMealsNutrition.carbs / summary.totalCarbs) * 100) || 0),
-      fullMark: 100
+      subject: "탄수화물",
+      value: Math.min(
+        120,
+        Math.round((selectedMealsNutrition.carbs / summary.totalCarbs) * 100) || 0
+      ),
+      fullMark: 100,
     },
     {
-      subject: '지방',
+      subject: "지방",
       value: Math.min(120, Math.round((selectedMealsNutrition.fat / summary.totalFat) * 100) || 0),
-      fullMark: 100
+      fullMark: 100,
     },
     // 예산도 추가
     {
-      subject: '예산',
-      value: Math.min(120, Math.round((selectedMealsNutrition.budget / summary.totalBudget) * 100) || 0),
-      fullMark: 100
-    }
+      subject: "예산",
+      value: Math.min(
+        120,
+        Math.round((selectedMealsNutrition.budget / summary.totalBudget) * 100) || 0
+      ),
+      fullMark: 100,
+    },
   ];
-  
+
   // 파이 차트 색상
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
-  
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
+
   return (
     <div className="nutrition-visualization-wrapper space-y-8 p-4">
       <div className="bg-white rounded-xl shadow-md p-4">
@@ -138,12 +154,12 @@ const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({ summary
               fill="#8884d8"
               fillOpacity={0.6}
             />
-            <Tooltip formatter={(value: number) => [`${value}%`, '목표 대비']} />
+            <Tooltip formatter={(value: number) => [`${value}%`, "목표 대비"]} />
             <Legend />
           </RadarChart>
         </ResponsiveContainer>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-4">
         <h3 className="text-lg font-semibold mb-4 text-center">영양소 구성비</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -162,12 +178,12 @@ const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({ summary
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => [`${Math.round(value)} kcal`, '열량']} />
+            <Tooltip formatter={(value: number) => [`${Math.round(value)} kcal`, "열량"]} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-4">
         <h3 className="text-lg font-semibold mb-4 text-center">목표 대비 현재 섭취량</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -183,13 +199,16 @@ const NutritionVisualization: React.FC<NutritionVisualizationProps> = ({ summary
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip formatter={(value: number, name: string, props: any) => {
-              const item = nutritionComparisonData.find(item => 
-                (name === 'current' && item.current === value) || 
-                (name === 'target' && item.target === value)
-              );
-              return [`${value} ${item?.unit || ''}`, name === 'current' ? '현재' : '목표'];
-            }} />
+            <Tooltip
+              formatter={(
+                value: number,
+                name: "current" | "target",
+                props: Payload<number, "current" | "target">
+              ) => {
+                const unit = (props.payload as { unit?: string })?.unit ?? "";
+                return [`${value} ${unit}`, name === "current" ? "현재" : "목표"];
+              }}
+            />
             <Legend />
             <Bar dataKey="current" name="현재" fill="#8884d8" />
             <Bar dataKey="target" name="목표" fill="#82ca9d" />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SelectOption {
   value: string;
@@ -9,7 +9,7 @@ interface SelectInputProps {
   id: string;
   label: string;
   value: string | undefined;
-  onChange: (value: any) => void;
+  onChange: (value: string) => void; // ✅ any → string으로 명확한 타입 지정
   options: SelectOption[];
   placeholder: string;
 }
@@ -28,20 +28,29 @@ const SelectInput: React.FC<SelectInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange(e.target.value);
   };
-  
+
   return (
     <div className="flex flex-col">
-      <label htmlFor={id} className="main-input__label">{label}</label>
+      <label htmlFor={id} className="main-input__label">
+        {label}
+      </label>
       <select
         id={id}
         name={id}
         className="main-input__field"
-        value={value || ''}
+        value={value || ""}
         onChange={handleChange}
       >
-        <option value="" disabled title={placeholder} className="truncate">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value} title={option.label} className="truncate">
+        <option value="" disabled title={placeholder} className="truncate">
+          {placeholder}
+        </option>
+        {options.map(option => (
+          <option
+            key={option.value}
+            value={option.value}
+            title={option.label}
+            className="truncate"
+          >
             {option.label}
           </option>
         ))}
