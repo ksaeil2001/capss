@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: Error & { status?: number; statusCode?: number; }, _req: Request, res: Response) => {
+  app.use((err: Error & { status?: number; statusCode?: number }, _req: Request, res: Response) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 

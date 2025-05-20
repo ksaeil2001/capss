@@ -69,9 +69,7 @@ export class DatabaseStorage implements IStorage {
     // allergies가 배열인지 명확히 보장 (없거나 undefined면 빈 배열)
     const fixedProfileData = {
       ...profileData,
-      allergies: Array.isArray(profileData.allergies)
-        ? profileData.allergies.map(String)
-        : [],
+      allergies: Array.isArray(profileData.allergies) ? profileData.allergies.map(String) : [],
     };
 
     const [newProfile] = await db.insert(userProfiles).values(fixedProfileData).returning();

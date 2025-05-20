@@ -1,4 +1,3 @@
-
 import { Switch, Route } from "wouter";
 import MainInputPage from "@/pages/MainInputPage";
 import RecommendPage from "@/pages/RecommendPage";
