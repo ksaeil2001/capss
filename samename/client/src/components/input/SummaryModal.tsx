@@ -1,6 +1,5 @@
 import React from "react";
 import { DietRecommendation } from "@shared/schema";
-import usePreviewStore from "@/stores/usePreviewStore";
 import { Progress } from "@/components/ui/progress";
 import {
   ArrowUpRight,

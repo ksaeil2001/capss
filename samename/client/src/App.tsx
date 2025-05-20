@@ -1,3 +1,5 @@
+import React from "react"; // ✅ JSX 사용을 위한 React import 추가
+
 import { Switch, Route } from "wouter";
 import MainInputPage from "@/pages/MainInputPage";
 import RecommendPage from "@/pages/RecommendPage";

@@ -16,7 +16,7 @@ const StepNavigationBar: React.FC<StepNavigationBarProps> = ({
 }) => {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { userInfo, isFormValid } = useUserInfoStore();
+  const { isFormValid } = useUserInfoStore();
 
   const handleNavigate = (path: string) => {
     if (path === "/recommendations" && currentStep === 1) {

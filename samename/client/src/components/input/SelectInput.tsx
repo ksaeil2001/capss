@@ -9,7 +9,7 @@ interface SelectInputProps {
   id: string;
   label: string;
   value: string | undefined;
-  onChange: (value: any) => void;
+  onChange: (value: string) => void; // ✅ any → string으로 명확한 타입 지정
   options: SelectOption[];
   placeholder: string;
 }
@@ -45,7 +45,12 @@ const SelectInput: React.FC<SelectInputProps> = ({
           {placeholder}
         </option>
         {options.map(option => (
-          <option key={option.value} value={option.value} title={option.label} className="truncate">
+          <option
+            key={option.value}
+            value={option.value}
+            title={option.label}
+            className="truncate"
+          >
             {option.label}
           </option>
         ))}

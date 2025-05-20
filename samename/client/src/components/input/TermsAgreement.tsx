@@ -90,9 +90,6 @@ const TermsAgreement: React.FC<TermsAgreementProps> = ({ checked, onChange }) =>
     profiling: false,
   });
 
-  // 모든 필수 약관에 동의했는지 확인
-  const allRequiredAgreed = requiredAgreements.every(item => agreements[item.id]);
-
   // 개별 약관 변경 처리
   const handleAgreementChange = (id: string, isChecked: boolean) => {
     const newAgreements = { ...agreements, [id]: isChecked };

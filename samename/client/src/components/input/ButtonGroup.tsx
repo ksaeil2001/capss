@@ -6,10 +6,10 @@ interface ButtonOption {
 }
 
 interface ButtonGroupProps {
-  id?: string; // ✅ 추가
+  id?: string; // ✅ 선택적 id 사용
   options: ButtonOption[];
   value: number | string | undefined;
-  onChange: (value: any) => void;
+  onChange: (value: number | string) => void; // ✅ any → 명확한 타입 지정
   label: string;
 }
 
@@ -17,7 +17,7 @@ interface ButtonGroupProps {
  * Button group for selecting from multiple options
  */
 const ButtonGroup: React.FC<ButtonGroupProps> = ({
-  id, // ✅ 추가
+  id,
   options,
   value,
   onChange,
@@ -25,8 +25,6 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
 }) => {
   return (
     <div className="flex flex-col" id={id}>
-      {" "}
-      {/* ✅ id prop 사용 */}
       <label className="main-input__label">{label}</label>
       <div className="flex gap-2">
         {options.map(option => (

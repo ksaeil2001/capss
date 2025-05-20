@@ -6,7 +6,6 @@ import { Meal } from "@shared/schema";
 import FoodCard from "@/components/recommend/FoodCard";
 import LeftBox from "@/components/recommend/LeftBox";
 import RightInfoBox from "@/components/recommend/RightInfoBox";
-import BottomBar from "@/components/recommend/BottomBar";
 import LoadingOverlay from "@/components/input/LoadingOverlay";
 import NutritionVisualization from "@/components/recommend/NutritionVisualization";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,28 +15,24 @@ import StepNavigationBar from "@/components/ui/StepNavigationBar";
  * Page to display diet recommendations based on user input
  */
 const RecommendPage: React.FC = () => {
-  const [location, navigate] = useLocation();
+  const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("foods");
 
   // Zustand 스토어에서 상태 및 액션 가져오기
-  const { recommendation, meals, isLoading, error, refreshMeals } = useRecommendStore();
+  const { recommendation, isLoading } = useRecommendStore(); // ✅ refreshMeals 제거
   const { selectedMeals, selectMeal, removeMeal } = useSelectedMealsStore();
 
-  // 초기 로딩 시 처리
   useEffect(() => {
-    // 추천 데이터가 없으면 메인 페이지로 이동
     if (!recommendation && !isLoading) {
       navigate("/");
     }
 
-    // 컴포넌트 마운트시 선택된 식단 초기화가 필요한지 확인
     const selectedMealsStore = useSelectedMealsStore.getState();
     if (!selectedMealsStore.isInitialized) {
       selectedMealsStore.initialize();
     }
   }, [recommendation, isLoading, navigate]);
 
-  // 다음 단계로 이동
   const handleNext = () => {
     const hasAnyMealSelected = selectedMeals.some(meal => meal !== null);
 
@@ -46,38 +41,22 @@ const RecommendPage: React.FC = () => {
       return;
     }
 
-    console.log("선택된 식단 정보:", selectedMeals);
-
-    // 선택한 식단을 MealConfigPage로 전달
     useSelectedMealsStore.getState().transferToMealPlan();
-
-    console.log("MealConfigPage로 이동합니다.");
-
-    // 페이지 이동
     navigate("/configure");
   };
 
-  // 식단 새로 추천 요청
-  const handleRefresh = () => {
-    refreshMeals();
-  };
-
-  // 식단 클릭 시 선택 처리
   const handleSelectMeal = (meal: Meal) => {
     selectMeal(meal);
   };
 
-  // 선택된 식단 제거
   const handleRemoveMeal = (index: number) => {
     removeMeal(index);
   };
 
-  // 로딩 중이고 데이터가 없는 경우 로딩 표시
   if (isLoading && (!recommendation || !recommendation.meals.length)) {
     return <LoadingOverlay isVisible={true} message="추천 식단을 가져오는 중입니다" />;
   }
 
-  // 데이터가 없는 경우 처리
   if (!recommendation) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -105,12 +84,12 @@ const RecommendPage: React.FC = () => {
         </header>
 
         <div className="flex flex-col md:flex-row gap-6">
-          {/* 좌측 패널 - 선택한 식단 */}
+          {/* 좌측 패널 */}
           <div className="w-full md:w-1/4 bg-white dark:bg-[#181818] rounded-xl p-4 shadow max-h-[520px] overflow-y-auto">
             <LeftBox selectedMeals={selectedMeals} onRemove={handleRemoveMeal} />
           </div>
 
-          {/* 중앙 영역 - 추천 식단 */}
+          {/* 중앙 영역 */}
           <div className="w-full md:w-2/4 bg-white dark:bg-[#1e1e1e] rounded-xl p-4 shadow">
             <Tabs defaultValue="foods" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted rounded-xl p-1">
@@ -153,7 +132,7 @@ const RecommendPage: React.FC = () => {
             </Tabs>
           </div>
 
-          {/* 우측 패널 - 영양 정보 */}
+          {/* 우측 패널 */}
           <div className="w-full md:w-1/4 bg-white dark:bg-[#252525] rounded-xl p-4 shadow max-h-[550px] overflow-y-auto">
             <RightInfoBox summary={recommendation?.summary} selectedMeals={selectedMeals} />
           </div>

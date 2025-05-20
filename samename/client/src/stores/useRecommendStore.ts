@@ -12,7 +12,7 @@ type RecommendStore = {
 
   setRecommendation: (recommendation: DietRecommendation) => void;
   setMeals: (meals: Meal[]) => void;
-  refreshMeals: () => Promise<void>; // API 호출하여 새로운 추천 가져오기
+  refreshMeals: () => Promise<void>;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
@@ -20,7 +20,7 @@ type RecommendStore = {
 
 const useRecommendStore = create(
   persist<RecommendStore>(
-    (set, get) => ({
+    (set) => ({
       recommendation: null,
       meals: [],
       isLoading: false,
